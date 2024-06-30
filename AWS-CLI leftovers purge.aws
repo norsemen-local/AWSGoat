@@ -1,0 +1,10 @@
+aws iam list-users
+aws iam list-instance-profiles
+aws iam delete-instance-profile --instance-profile-name ec2Deployer
+aws iam delete-instance-profile --instance-profile-name ecs-instance-profile
+aws ecs list-clusters
+aws rds delete-db-subnet-group
+aws secretsmanager list-secrets
+aws rds describe-db-instances
+aws iam list-policies --query "Policies[?CreateDate >= '2024-06-26']" --output json
+aws iam list-roles --query "Roles[?CreateDate >= '2024-06-26']" --output json
