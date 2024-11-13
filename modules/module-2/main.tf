@@ -29,7 +29,7 @@ resource "aws_vpc" "lab-vpc" {
 resource "aws_subnet" "lab-subnet-public-1" {
   vpc_id                  = aws_vpc.lab-vpc.id
   cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[0]
 }
 resource "aws_internet_gateway" "my_vpc_igw" {
@@ -58,7 +58,7 @@ resource "aws_subnet" "lab-subnet-public-1b" {
   vpc_id                  = aws_vpc.lab-vpc.id
   cidr_block              = "10.0.128.0/24"
   availability_zone       = data.aws_availability_zones.available.names[1]
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
 }
 resource "aws_route_table_association" "my_vpc_us_east_1b_public" {
   subnet_id      = aws_subnet.lab-subnet-public-1b.id
@@ -348,27 +348,17 @@ data "aws_ami" "ecs_optimized_ami" {
 
 
 
-# Define the Launch Template
-resource "aws_launch_template" "ecs_launch_template" {
-  name = "ecs-launch-template"
-
+resource "aws_launch_configuration" "ecs_launch_config" {
   image_id             = data.aws_ami.ecs_optimized_ami.id
   iam_instance_profile = aws_iam_instance_profile.ecs-instance-profile.name
-  vpc_security_group_ids = [aws_security_group.ecs_sg.id]
+  security_groups      = [aws_security_group.ecs_sg.id]
   user_data            = data.template_file.user_data.rendered
   instance_type        = "t2.micro"
 }
-
-# Update the Auto Scaling Group to use the Launch Template
 resource "aws_autoscaling_group" "ecs_asg" {
   name                 = "ECS-lab-asg"
   vpc_zone_identifier  = [aws_subnet.lab-subnet-public-1.id]
-
-  launch_template {
-    id      = aws_launch_template.ecs_launch_template.id
-    version = "$Latest"
-  }
-
+  launch_configuration = aws_launch_configuration.ecs_launch_config.name
   desired_capacity     = 1
   min_size             = 0
   max_size             = 1
