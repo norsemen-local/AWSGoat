@@ -348,13 +348,17 @@ data "aws_ami" "ecs_optimized_ami" {
 
 # Define the Launch Template with the original name
 resource "aws_launch_template" "ecs_launch_config" {
-  name = "ecs_launch_config"
+  name = "ecs-launch-template"
 
-  image_id             = data.aws_ami.ecs_optimized_ami.id
-  iam_instance_profile = aws_iam_instance_profile.ecs-instance-profile.name
+  image_id       = data.aws_ami.ecs_optimized_ami.id
+  instance_type  = "t2.micro"
+  user_data      = data.template_file.user_data.rendered
   vpc_security_group_ids = [aws_security_group.ecs_sg.id]
-  user_data            = data.template_file.user_data.rendered
-  instance_type        = "t2.micro"
+
+  # Define the IAM instance profile as a block
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs-instance-profile.name
+  }
 }
 
 # Update the Auto Scaling Group to use the Launch Template with the original name
