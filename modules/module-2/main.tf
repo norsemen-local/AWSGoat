@@ -346,9 +346,9 @@ data "aws_ami" "ecs_optimized_ami" {
   }
 }
 
-# Define the Launch Template
+# Define the Launch Template with the original name
 resource "aws_launch_template" "ecs_launch_config" {
-  name = "ecs-launch-template"
+  name = "ecs_launch_config"
 
   image_id             = data.aws_ami.ecs_optimized_ami.id
   iam_instance_profile = aws_iam_instance_profile.ecs-instance-profile.name
@@ -357,13 +357,13 @@ resource "aws_launch_template" "ecs_launch_config" {
   instance_type        = "t2.micro"
 }
 
-# Update the Auto Scaling Group to use the Launch Template
+# Update the Auto Scaling Group to use the Launch Template with the original name
 resource "aws_autoscaling_group" "ecs_asg" {
   name                 = "ECS-lab-asg"
   vpc_zone_identifier  = [aws_subnet.lab-subnet-public-1.id]
 
   launch_template {
-    id      = aws_launch_template.ecs_launch_template.id
+    id      = aws_launch_template.ecs_launch_config.id
     version = "$Latest"
   }
 
@@ -371,6 +371,7 @@ resource "aws_autoscaling_group" "ecs_asg" {
   min_size             = 0
   max_size             = 1
 }
+
 
 
 resource "aws_ecs_cluster" "cluster" {
