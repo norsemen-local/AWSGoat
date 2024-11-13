@@ -346,35 +346,31 @@ data "aws_ami" "ecs_optimized_ami" {
   }
 }
 
-# Define the Launch Template with the original name
-resource "aws_launch_template" "ecs_launch_config" {
-  name = "ecs-launch-template"
-
-  image_id       = data.aws_ami.ecs_optimized_ami.id
-  instance_type  = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.ecs_sg.id]
-
-  # Use base64encode for user_data to ensure proper encoding
-  user_data      = base64encode(data.template_file.user_data.rendered)
-
+resource "aws_launch_template" "ecs_launch_template" {
+  name_prefix            = "ecs-lab-launch-template-"
+  image_id               = data.aws_ami.ecs_optimized_ami.id
+  instance_type          = "t2.micro"
   iam_instance_profile {
-    name = aws_iam_instance_profile.ecs-instance-profile.name
+    name                = aws_iam_instance_profile.ecs-instance-profile.name
   }
+  vpc_security_group_ids     = [aws_security_group.ecs_sg.id]
+  
+  # Encode the user_data in base64
+  user_data              = base64encode(data.template_file.user_data.rendered)
 }
 
-# Update the Auto Scaling Group to use the Launch Template with the original name
 resource "aws_autoscaling_group" "ecs_asg" {
-  name                 = "ECS-lab-asg"
-  vpc_zone_identifier  = [aws_subnet.lab-subnet-public-1.id]
+  name                   = "ECS-lab-asg"
+  vpc_zone_identifier    = [aws_subnet.lab-subnet-public-1.id]
+  desired_capacity       = 1
+  min_size               = 0
+  max_size               = 1
 
+  # Reference the launch template instead of the launch configuration
   launch_template {
-    id      = aws_launch_template.ecs_launch_config.id
-    version = "$Latest"
+    id                   = aws_launch_template.ecs_launch_template.id
+    version              = "$Latest"
   }
-
-  desired_capacity     = 1
-  min_size             = 0
-  max_size             = 1
 }
 
 
