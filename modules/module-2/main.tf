@@ -29,7 +29,7 @@ resource "aws_vpc" "lab-vpc" {
 resource "aws_subnet" "lab-subnet-public-1" {
   vpc_id                  = aws_vpc.lab-vpc.id
   cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
   availability_zone       = data.aws_availability_zones.available.names[0]
 }
 resource "aws_internet_gateway" "my_vpc_igw" {
@@ -58,7 +58,7 @@ resource "aws_subnet" "lab-subnet-public-1b" {
   vpc_id                  = aws_vpc.lab-vpc.id
   cidr_block              = "10.0.128.0/24"
   availability_zone       = data.aws_availability_zones.available.names[1]
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 }
 resource "aws_route_table_association" "my_vpc_us_east_1b_public" {
   subnet_id      = aws_subnet.lab-subnet-public-1b.id
