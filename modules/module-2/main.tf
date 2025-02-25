@@ -349,12 +349,19 @@ data "aws_ami" "ecs_optimized_ami" {
 
 
 resource "aws_launch_template" "ecs_launch_config" {
-  image_id             = data.aws_ami.ecs_optimized_ami.id
-  iam_instance_profile = aws_iam_instance_profile.ecs-instance-profile.name
-  security_groups      = [aws_security_group.ecs_sg.id]
-  user_data            = data.template_file.user_data.rendered
-  instance_type        = "t2.micro"
+  image_id      = data.aws_ami.ecs_optimized_ami.id
+  instance_type = "t2.micro"
+  user_data     = data.template_file.user_data.rendered
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs-instance-profile.name
+  }
+
+  network_interfaces {
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
 }
+
 resource "aws_autoscaling_group" "ecs_asg" {
   name                 = "ECS-lab-asg"
   vpc_zone_identifier  = [aws_subnet.lab-subnet-public-1.id]
