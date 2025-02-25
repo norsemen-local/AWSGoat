@@ -31,6 +31,12 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Check Terraform Version
+      run: terraform --version
     
     - name: Set Account ID
       id: account
