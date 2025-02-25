@@ -361,15 +361,27 @@ resource "aws_launch_template" "ecs_launch_config" {
     security_groups = [aws_security_group.ecs_sg.id]
   }
 }
-
 resource "aws_autoscaling_group" "ecs_asg" {
-  name                 = "ECS-lab-asg"
-  vpc_zone_identifier  = [aws_subnet.lab-subnet-public-1.id]
-  launch_configuration = aws_launch_template.ecs_launch_config.name
-  desired_capacity     = 1
-  min_size             = 0
-  max_size             = 1
+  name                = "ECS-lab-asg"
+  vpc_zone_identifier = [aws_subnet.lab-subnet-public-1.id]
+  desired_capacity    = 1
+  min_size            = 0
+  max_size            = 1
+
+  launch_template {
+    id      = aws_launch_template.ecs_launch_config.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "ECS-lab-asg"
+    propagate_at_launch = true
+  }
+
+  depends_on = [aws_launch_template.ecs_launch_config]
 }
+
 
 resource "aws_ecs_cluster" "cluster" {
   name = "ecs-lab-cluster"
