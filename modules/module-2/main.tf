@@ -342,7 +342,7 @@ data "aws_ami" "ecs_optimized_ami" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-ecs-hvm-2.0.202*-x86_64-ebs"]
+    values = ["amzn2-ami-ecs-kernel-5.10-hvm-*-x86_64-ebs"]
   }
 }
 
