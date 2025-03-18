@@ -3604,7 +3604,10 @@ resource "aws_instance" "goat_instance" {
   depends_on = [
     aws_s3_object.upload_temp_object_2
   ]
-}
+}  metadata_options {
+    http_tokens = "required"
+  }
+
 
 
 resource "aws_dynamodb_table" "users_table" {
